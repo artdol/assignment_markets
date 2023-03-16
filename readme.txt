@@ -1,13 +1,13 @@
-These are the Matlab codes to replicate the main results and tables in *"Assignment Markets: Theory and Experiments"* 
+These are the Matlab codes to replicate the main results and tables in "Assignment Markets: Theory and Experiments". 
 The data is in the online supplementary material to the paper.
 
-# Code
+-Code-
 
 There are 5 separate stages to produce the results in the paper. Running them in this order should replicate the main tables in LaTeX format (printed to Matlab output), both for experimental subjects and simulated data points.
 
-All files assume that YALMIP[^1] is installed and added to Matlab path (see https://yalmip.github.io/) and a mixed-integer solver is setup. Currently all files assume gurobi is installed. For CPLEX or other solvers, please edit the sdpsettings lines in the files.
+All files assume that YALMIP* is installed and added to Matlab path (see https://yalmip.github.io/) and a mixed-integer solver is setup. Currently all files assume gurobi is installed. For CPLEX or other solvers, please edit the sdpsettings lines in the files.
 
-[^1]: Lofberg, J. (2004, September). YALMIP: A toolbox for modeling and optimization in MATLAB. In 2004 IEEE international conference on robotics and automation (IEEE Cat. No. 04CH37508) (pp. 284-289). IEEE.
+* Lofberg, J. (2004, September). YALMIP: A toolbox for modeling and optimization in MATLAB. In 2004 IEEE international conference on robotics and automation (IEEE Cat. No. 04CH37508) (pp. 284-289). IEEE.
 
 1. main.m
 This file processes the experimental data, producing the main tables (Tables 6, 11-13) printing the results and saving them to experimentaldata.mat
@@ -26,7 +26,7 @@ Produces the Predictive Success Indices (Table 14), assuming that powersimulatio
 
 Remaining matlab files are function definitions used in the process.
 
-# Data
+-Data-
 
 The same experimental data is in matlab format (raw_data.mat) and in csv format (raw_data.csv). 
 Every matched group of six participants is uniquely identified by a code in the total_group column, which consists of session id and group number within session.
