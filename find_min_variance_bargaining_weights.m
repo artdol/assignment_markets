@@ -53,7 +53,7 @@ end
 
 % optimization parameters. For cplex replace gurobi with cplex (or other
 % solvers)
-ops = sdpsettings('verbose',0,'savesolveroutput',1,'solver','gurobi','gurobi.TimeLimit',60*60*24,'gurobi.MIPGap',0.000001,'bmibnb.maxiter',1000);
+ops = sdpsettings('verbose',0,'savesolveroutput',1,'solver','gurobi','gurobi.TimeLimit',60*60*24,'gurobi.MIPGap',0.000001,'bmibnb.maxiter',1000,'gurobi.TuneTimeLimit',Inf);
 
 % All weights are within (0,1) open interval
 Cons=[Cons alpha>=eps beta>=eps alpha<=1-eps beta<=1-eps ];

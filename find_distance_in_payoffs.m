@@ -63,7 +63,7 @@ for matched_buyers = subsets_of_buyers'
 
         % optimization parameters. For cplex replace gurobi with cplex (or other
         % solvers)
-        ops = sdpsettings('verbose',0,'savesolveroutput',1,'solver','bmibnb','gurobi.TimeLimit',60*60*24,'gurobi.MIPGap',0.000001,'bmibnb.maxiter',1000);
+        ops = sdpsettings('verbose',0,'savesolveroutput',1,'solver','bmibnb','gurobi.TimeLimit',60*60*24,'gurobi.MIPGap',0.000001,'bmibnb.maxiter',1000,'gurobi.TuneTimeLimit',Inf);
         distcomp.feature( 'LocalUseMpiexec', false );
 
         % All variables are positive

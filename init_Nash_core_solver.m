@@ -35,14 +35,14 @@ for b=1:3
 end
 
 % weights are between epsilon and 1
-Cons=[Cons alpha>=eps beta>=eps alpha<=1-eps beta<=1-eps];
+Cons=[Cons alpha>=eps*100 beta>=eps*100 alpha<=1-eps*100 beta<=1-eps*100];
 
 obj=0; % No optimization, only feasibility
 
 % optimization parameters. For cplex replace gurobi with cplex (or other
 % solvers)
-ops = sdpsettings('verbose',0,'savesolveroutput',1,'solver','gurobi','gurobi.TimeLimit',60*60*24,'gurobi.MIPGap',0.000001,'bmibnb.maxiter',1000);
+ops = sdpsettings('verbose',0,'savesolveroutput',1,'solver','gurobi','gurobi.TimeLimit',60*60*24,'gurobi.MIPGap',0.000001,'bmibnb.maxiter',1000,'gurobi.TuneTimeLimit',Inf);
 
 % return the optimizer object
-solv=optimizer([Cons],obj,ops,{ind_buy_pay ind_sel_pay},{alpha beta});
+solv=optimizer([Cons],obj,ops,{ind_buy_pay ind_sel_pay},{alpha beta x});
 

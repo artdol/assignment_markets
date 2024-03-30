@@ -31,7 +31,7 @@ hm.YData={'PO' 'PO lott', '312', 'ce', 'ne', 'PN-core'};
 hm.XData=data.treatment_names;
 end
 
-% Print the tables as LaTeX
+% Print the tables as LaTeX (Table F.8)
 for agent_type=1:3
     sprd=max(max(max(psi_table(agent_type,:,:))))-min(min(min(psi_table(agent_type,:,:))));
     for r=1:6

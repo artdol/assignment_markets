@@ -62,7 +62,7 @@ res=sum(is_stable)/max_iter;
 [sorted_pairings_cnt, pairings_order] = sortrows(res','descend');
 sorted_pairings=all_matchings(pairings_order,:);
 
-% Print the table of matchings and frequencies (Table 5)
+% Print the table of matchings and frequencies
 % Heading
 fprintf('%s & %s \\\\ \n',"Matching", "Frequency")
 for i=1:num_matchings

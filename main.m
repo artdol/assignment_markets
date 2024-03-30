@@ -278,6 +278,7 @@ for gr_ind=1:num_groups
             if isempty(solv{ss_ind})
                 solv{ss_ind}=init_Nash_core_solver(A,m_corr);
             end
+
             
             % run the solver
             is_Ncore(gr_ind,round_ind)=check_Nash_core_weights(solv{ss_ind},squeeze(u_vec(gr_ind,round_ind,:))',squeeze(v_vec(gr_ind,round_ind,:))');
@@ -376,6 +377,7 @@ for treatment_ind=1:4
     end
     eff_lvl(treatment_ind)=mean(total_welfare_array{treatment_ind});
     sel_shr(treatment_ind)=mean(seller_welfare_array{treatment_ind},'omitnan');
+    
 end
 
 % print a table of matchings and their frequencies
@@ -398,8 +400,8 @@ for treatment_ind=1:4
     end
 end
 
-% sort and display summary table (Table 6)
-fprintf("Table 6 \n\n\n")
+% sort and display summary table (Table 2)
+fprintf("Table 2 \n\n\n")
 % heading
 fprintf("%s & %s & %s & %s & %s \\\\ \n", "Assignment (%% of observations)", treatment_names{:})
 fprintf("\\hline \n")
@@ -472,8 +474,8 @@ for treatment_ind=1:4
     end
 end
 
-% display table of distances (Tables 11-13)
-fprintf("Tables 11-13 \n\n\n")
+% display table of distances (Tables H.10-H.12)
+fprintf("Tables H.10-H.12 \n\n\n")
 % heading
 fprintf("%s & %s & %s & %s \\\\ \n", "Assignment ", treatment_names{:})
 fprintf("\\hline \n")
@@ -510,6 +512,10 @@ buyer_mean_weights=cell(1,4);
 seller_mean_weights=cell(1,4);
 buyer_weights=cell(1,4);
 seller_weights=cell(1,4);
+
+weights_dist_to_mean=cell(1,4);
+weights_dist_to_sixth=cell(1,4);
+
 for treatment_ind=1:4
     ind=1;
     flat_m=zeros(0,3);
@@ -546,20 +552,133 @@ for treatment_ind=1:4
     end
     num_points=ind-1;
     [variance_of_weights{treatment_ind},buyer_mean_weights{treatment_ind},seller_mean_weights{treatment_ind},buyer_weights{treatment_ind},seller_weights{treatment_ind}]=find_min_variance_bargaining_weights(num_points,flat_u_vec,flat_v_vec,A,flat_m);
+
+    % record distances from the mean
+    for p=1:num_points
+        weights_dist_to_mean{treatment_ind}(p)=0;
+        weights_dist_to_sixth{treatment_ind}(p)=0;
+        for s=1:3
+            weights_dist_to_mean{treatment_ind}(p)=weights_dist_to_mean{treatment_ind}(p)+(buyer_weights{treatment_ind}(p,b) - buyer_mean_weights{treatment_ind}(b))^2;
+            weights_dist_to_sixth{treatment_ind}(p)=weights_dist_to_sixth{treatment_ind}(p)+(buyer_weights{treatment_ind}(p,b) - 1/6)^2;
+        end
+        for b=1:3
+            weights_dist_to_mean{treatment_ind}(p)=weights_dist_to_mean{treatment_ind}(p)+(seller_weights{treatment_ind}(p,s) - seller_mean_weights{treatment_ind}(s))^2;
+            weights_dist_to_sixth{treatment_ind}(p)=weights_dist_to_sixth{treatment_ind}(p)+(seller_weights{treatment_ind}(p,s) - 1/6)^2;
+        end
+    end
+    % add the observations that are not Ncore rationalizable
+    weights_dist_to_mean{treatment_ind}((num_points + 1) : (num_points + num_obs(treatment_ind) - count_Ncore(treatment_ind))) = 1;
+    weights_dist_to_sixth{treatment_ind}((num_points + 1) : (num_points + num_obs(treatment_ind) - count_Ncore(treatment_ind))) = 1;
+
 end
+
+% calculate simple shares of payoffs
+share_of_payoff_b = cell(4,3,3);
+share_of_payoff_s = cell(4,3,3);
+taking_turns = zeros(1,4);
+
+share_is_50_50_flat = zeros(1,4);
+share_is_50_50 = zeros(4,3,3);
+share_is_50_50_210 = zeros(4,3,3);
+
+matched_pairs = zeros(1,4);
+matched_pairs_210 = zeros(1,4);
+for treatment_ind=1:4
+    for gr_ind=1:num_groups
+        if strcmp(group_treatment{gr_ind},treatment_names{treatment_ind})
+            for round_ind=first_round:num_rounds
+                matching=squeeze(final_match(gr_ind,round_ind,:))';
+                if (all(matching == [1 2 0]) || all(matching == [2 1 0]))
+                    m_corr=matching;
+                    m_corr(3)=3;
+                else
+                    m_corr=matching;
+                end
+
+                for b=1:3
+                    s=m_corr(b);
+
+                    if s>0
+                        matched_pairs(treatment_ind) = matched_pairs(treatment_ind)+1;
+                        if all(m_corr == [2 1 3]) 
+                             matched_pairs_210(treatment_ind) = matched_pairs_210(treatment_ind)+1;
+                        end
+                        
+                        if s~=3 || b~=3
+                            % count episodes of subjects taking turns                    
+                            if u_vec(gr_ind,round_ind,b) / A(s,b)== 1 || u_vec(gr_ind,round_ind,b) / A(s,b)== 0  
+                                if u_vec(gr_ind,round_ind,b) / A(s,b)== 1- u_vec(gr_ind,round_ind-1,b) / A(s,b)
+                                    taking_turns(treatment_ind) = taking_turns(treatment_ind)+1;
+                                end
+                            end
+
+                           share_of_payoff_b{treatment_ind,b,s} = [share_of_payoff_b{treatment_ind,b,s} u_vec(gr_ind,round_ind,b) / A(s,b)];
+                           share_of_payoff_s{treatment_ind,s,b} = [share_of_payoff_s{treatment_ind,s,b} v_vec(gr_ind,round_ind,s) / A(s,b)];
+
+                           if u_vec(gr_ind,round_ind,b) / A(s,b) == .5
+                                share_is_50_50_flat(treatment_ind) = share_is_50_50_flat(treatment_ind)+1;
+                                share_is_50_50(treatment_ind,b,s) = share_is_50_50(treatment_ind,b,s) + 1;
+                                if all(m_corr == [2 1 3]) 
+                                  share_is_50_50_210(treatment_ind,b,s) = share_is_50_50_210(treatment_ind,b,s) + 1;
+                                end
+                           end
+                        end
+                    end
+                end
+            end
+        end
+    end
+end
+
+% make an array out of cell-array share_of_payoff
+share_of_payoff_b_flat = cell(1,4);
+share_of_payoff_s_flat = cell(1,4);
+
+% confidence
+share_of_payoff_b_flat_std = cell(1,4);
+for treatment_ind=1:4
+    for b=1:3
+        for s=1:3
+            share_of_payoff_b_flat{treatment_ind}(b,s)=mean(share_of_payoff_b{treatment_ind,b,s});
+            share_of_payoff_b_flat_std{treatment_ind}(b,s)=std(share_of_payoff_b{treatment_ind,b,s});
+            
+            share_of_payoff_s_flat{treatment_ind}(s,b)=mean(share_of_payoff_s{treatment_ind,s,b});
+        end
+    end
+    squeeze(share_is_50_50(treatment_ind,1,3)+share_is_50_50(treatment_ind,2,1))/sum(sum(share_is_50_50(treatment_ind,:,:)))
+end
+
+
+% plot the empricial CDFs of the distance of the empirical weights to the
+% means by treatment
+for treatment_ind=1:4
+    cdfplot(weights_dist_to_mean{treatment_ind})
+    hold on
+end
+hold off
+legend(treatment_names)
+
+% plot the empricial CDFs of the distance of the empirical weights to 
+% 1/6 by treatment
+for treatment_ind=1:4
+    cdfplot(weights_dist_to_sixth{treatment_ind})
+    hold on
+end
+hold off
+legend(treatment_names)
 
 % Save the results in a matlab file
 % Solver objects cannot be saved, so clear them first
 clear solv solv_lcore solv_lott solv_nash;
 save("experimentaldata")
 
-% Optionally: plot the spiderweb graph of bargaining weights
-% spiderplot function by Moses is available at https://de.mathworks.com/matlabcentral/fileexchange/59561-spider_plot
+% Optionally: plot the spiderweb graph (Figure 3) of bargaining weights
+% spider_plot function by Moses is available at https://de.mathworks.com/matlabcentral/fileexchange/59561-spider_plot
 for t=1:4
     fig = spider_plot([[buyer_weights{t},seller_weights{t}];[buyer_mean_weights{t},seller_mean_weights{t}]],...
     'Color', [repmat([0,0.5,0],length(buyer_weights{t}),1);[0.5,0,0]],...
     'AxesLabels', {'B1','B2','B3','S1','S2','S3'},...
-    'AxesLimits', [0, 0, 0, 0, 0, 0; 1, 1, 1, 1, 1, 1], ...
+    'AxesLimits', [0, 0, 0, 0, 0, 0; .7, .7, .7, .7, .7, .7], ...
     'LineTransparency',[repelem(0.3,length(buyer_weights{t})),1],'MarkerTransparency',[repelem(0.3,length(buyer_weights{t})),1]);
     
     % each spiderweb is saved as a separate svg image

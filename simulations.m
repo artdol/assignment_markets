@@ -280,8 +280,8 @@ for agent_type=1:3
     end
 end
 
-% sort and display summary table (Table 3)
-fprintf("Table 3 \n\n\n")
+% sort and display summary table (Table F.7)
+fprintf("Table F.7 \n\n\n")
 % heading
 fprintf("%s & %s & %s & %s \\\\ \n", "Assignment (%% of observations)", agent_types)
 fprintf("\\hline \n")
@@ -314,8 +314,8 @@ fprintf("Mean seller's share of surplus (%% of max total payoff) & %0.2f & %0.2f
 fprintf("Outcomes with 0-utility trades & %0.2f & %0.2f & %0.2f \\\\ \n",count_zero_trades/max_iter*100);
 fprintf("\\hline \n")
 
-% display table of distances (Tables 11-13)
-fprintf("Tables 11-13 \n\n\n")
+% display table of distances (Tables H.10-H.12)
+fprintf("Tables H.10-H.12 \n\n\n")
 % heading
 fprintf("%s & %s & %s & %s \\\\ \n", "Assignment ", agent_types)
 fprintf("\\hline \n")

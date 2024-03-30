@@ -1,6 +1,6 @@
 % Generate random solutions to the weighted Nash bargaining problem. The
-% problem is not convex, and the program finds a feasible solution that
-% maximizes the NBS objective (See Appendix for discussion).
+% problem is not convex, and the program simply finds a feasible solution that
+% maximizes the NBS objective (See Appendix C for discussion).
 
 % number of data points to generate
 max_iter = 5000;
@@ -56,7 +56,7 @@ for iter=1:max_iter
 
         % optimization parameters. For cplex replace gurobi with cplex (or other
         % solvers)
-        ops = sdpsettings('verbose',0,'savesolveroutput',1,'solver','bmibnb','gurobi.TimeLimit',60*60*24,'gurobi.MIPGap',0.000001);
+        ops = sdpsettings('verbose',0,'savesolveroutput',1,'solver','bmibnb','gurobi.TimeLimit',60*60*24,'gurobi.MIPGap',0.000001,'gurobi.TuneTimeLimit',Inf);
         distcomp.feature( 'LocalUseMpiexec', false );
         
         % run the solver
@@ -94,7 +94,7 @@ for i=1:size(permlist,1)
     match_count(i)=sum(sum(permlist(i,:)==matches,2)==3);
 end
 
-% sort and display the frequency table (Table 4)
+% sort and display the frequency table
 % heading
 fprintf("%s & %s \\\\ \n", "Assignment (\% of observations)", agent_types)
 fprintf("\hline")
